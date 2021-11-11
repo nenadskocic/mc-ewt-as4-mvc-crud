@@ -2,7 +2,7 @@
     "StAuth10222: I Nenad Skocic, 000107650 certify that this material is my original work. No other person's work has been used 
     without due acknowledgement. I have not made my work available to anyone else."
 
-    1) Log middleware
+    1) Log middleware ()
 */
 const express = require('express');
 const app = express();
@@ -87,12 +87,19 @@ app.use("/editors",
 app.use("/login",
     function(req,res,next) { req.TPL.loginnav = true; next(); });
 
-// protect access to the members page, re-direct user to home page if nobody
-// is logged in...
+// protect access to the members page, re-direct user to home page if nobody is logged in...
 app.use("/members", function(req,res,next) {
   if (req.session.username) next();
   else res.redirect("/home");
+});
 
+// Protect access to the editors page, re-direct user to home page if nobody is logged in...
+app.use("/editors", function(req,res,next) {
+    if (req.session.level == "member" ) {
+        res.redirect("/home");
+    } else {
+        next();
+    }
 });
 
 // Include Controllers
