@@ -49,7 +49,7 @@ Thumbs.db
 *.wmv
 
 # Database files
-*Db.*
+database.db
 
 # Text files
 *.txt
