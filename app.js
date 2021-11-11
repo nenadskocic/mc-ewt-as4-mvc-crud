@@ -1,7 +1,14 @@
+/*
+    "StAuth10222: I Nenad Skocic, 000107650 certify that this material is my original work. No other person's work has been used 
+    without due acknowledgement. I have not made my work available to anyone else."
+
+    1) Log middleware
+*/
 const express = require('express');
 const app = express();
 const session = require('express-session');
 const mustacheExpress = require('mustache-express');
+const fs = require('fs');
 
 // Include the mustache engine to help us render our pages
 app.engine("mustache", mustacheExpress());
@@ -20,14 +27,48 @@ app.use(session({secret: 'keyboard cat'
 // Create a middleware to populate an initial template array
 app.use(function(req,res,next) {
 
-  // reset the template obect to a blank object on each request
-  req.TPL = {};
+    // reset the template obect to a blank object on each request
+    req.TPL = {};
 
-  // decide whether to display the login or logout button in the navbar
-  req.TPL.displaylogin = !req.session.username;
-  req.TPL.displaylogout = req.session.username;
+    // decide whether to display the login or logout button in the navbar
+    req.TPL.displaylogin = !req.session.username;
+    req.TPL.displaylogout = req.session.username;
 
-  next();
+    next();
+});
+
+/**
+ * 1) Log middleware
+ * Creates log file (log.txt) and populate with data upon requests.
+ */
+app.use(/^(.+)$/, function(req, res, next) {
+    let date = new Date().toString();
+    // Keeeps original URL request, req.path not working with this router case.
+    let path = req.originalUrl;
+    // IPV6 loopback address ::1 = localhost or 127.0.0.1
+    let ip = req.ip;
+    // Query params in URL.
+    let queryParams = JSON.stringify(req.query);
+    // Request payload sent.
+    let reqBody = JSON.stringify(req.body);
+
+    // Adds all data above into a template literal and creates a new line.
+    let data = `${ date },${ path },${ ip },${ queryParams },${ reqBody }\n`;
+
+    fs.appendFile("log.txt", data, (err) => {  
+        if(err) {
+            console.log("Could not append to file.")
+        } else { 
+            // Determines if logout path is accessed.
+            if(path == "/login/logout") {
+                // Clears contents of log file.
+                fs.writeFile("log.txt", "", function() {
+                    console.log("User logged out, contents of 'log.txt' cleared.");
+                })
+            }
+        }
+    });
+    next();
 });
 
 // Create middlewares for setting up navigational highlighting
@@ -36,20 +77,19 @@ app.use(function(req,res,next) {
 // would come at the cost of readability (which matters more right now since
 // we are learning middlewares for the first time).
 app.use("/home",
-        function(req,res,next) { req.TPL.homenav = true; next(); });
+    function(req,res,next) { req.TPL.homenav = true; next();});
 app.use("/articles",
-        function(req,res,next) { req.TPL.articlesnav = true; next(); });
+    function(req,res,next) { req.TPL.articlesnav = true; next(); });
 app.use("/members",
-        function(req,res,next) { req.TPL.membersnav = true; next(); });
+    function(req,res,next) { req.TPL.membersnav = true; next(); });
 app.use("/editors",
-        function(req,res,next) { req.TPL.editorsnav = true; next(); });
+    function(req,res,next) { req.TPL.editorsnav = true; next(); });
 app.use("/login",
-        function(req,res,next) { req.TPL.loginnav = true; next(); });
+    function(req,res,next) { req.TPL.loginnav = true; next(); });
 
 // protect access to the members page, re-direct user to home page if nobody
 // is logged in...
 app.use("/members", function(req,res,next) {
-
   if (req.session.username) next();
   else res.redirect("/home");
 
@@ -91,12 +131,12 @@ app.use("/login", require("./controllers/login"));
 
 // - We route / to redirect to /home by default
 app.get("/", function(req, res) {
-  res.redirect("/home");
+    res.redirect("/home");
 });
 
 // Catch-all router case
 app.get(/^(.+)$/, function(req,res) {
-  res.sendFile(__dirname + req.params[0]);
+    res.sendFile(__dirname + req.params[0]);
 });
 
 // Start the server
