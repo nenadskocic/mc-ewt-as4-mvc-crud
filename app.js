@@ -1,9 +1,8 @@
 /*
     "StAuth10222: I Nenad Skocic, 000107650 certify that this material is my original work. No other person's work has been used 
     without due acknowledgement. I have not made my work available to anyone else."
-
-    1) Log middleware ()
 */
+
 const express = require('express');
 const app = express();
 const session = require('express-session');
@@ -87,6 +86,7 @@ app.use("/editors",
 app.use("/login",
     function(req,res,next) { req.TPL.loginnav = true; next(); });
 
+
 // protect access to the members page, re-direct user to home page if nobody is logged in...
 app.use("/members", function(req,res,next) {
   if (req.session.username) next();
@@ -94,6 +94,15 @@ app.use("/members", function(req,res,next) {
 });
 
 // Protect access to the editors page, re-direct user to home page if nobody is logged in...
+app.use("/editors", function(req,res,next) {
+    if (req.session.username) {
+        next();         
+    } else {
+        res.redirect("/home");
+    }
+});
+
+// Protect access to the editors page, re-direct user to home page if level is member, otherwise continue.
 app.use("/editors", function(req,res,next) {
     if (req.session.level == "member" ) {
         res.redirect("/home");
@@ -135,6 +144,7 @@ app.use("/articles", require("./controllers/articles"));
 app.use("/members", require("./controllers/members"));
 app.use("/editors", require("./controllers/editors"));
 app.use("/login", require("./controllers/login"));
+app.use("/signup", require("./controllers/signup"));
 
 // - We route / to redirect to /home by default
 app.get("/", function(req, res) {
