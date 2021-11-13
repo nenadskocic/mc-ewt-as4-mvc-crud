@@ -1,6 +1,10 @@
+/*
+    "StAuth10222: I Nenad Skocic, 000107650 certify that this material is my original work. No other person's work has been used 
+    without due acknowledgement. I have not made my work available to anyone else."
+*/
 const express = require('express');
 var router = express.Router()
-const ArticlesModel = require('../models/articles.js')
+const ArticlesModel = require('../models/articlesModel.js')
 
 // Display the articles page
 router.get("/", async function(req, res)
