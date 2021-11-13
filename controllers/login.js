@@ -1,10 +1,7 @@
 /*
     "StAuth10222: I Nenad Skocic, 000107650 certify that this material is my original work. No other person's work has been used 
     without due acknowledgement. I have not made my work available to anyone else."
-
-    2) Login Login (Lines 27 - 64)
 */
-
 const express = require('express');
 var router = express.Router();
 
@@ -20,7 +17,6 @@ router.get("/", async function(req, res)
 });
 
 /**
- *  2) Login Login
  *  Attempts to login a user.
  *  - The action for the form submit on the login page.
  */
@@ -51,8 +47,7 @@ router.post("/attemptlogin", async (req, res) =>
             req.session.level = level;
             // Re-direct the logged-in user to the members page
             res.redirect("/members");
-        } 
-        if (password == pass && level == "editor") {
+        } else if (password == pass && level == "editor") {
             req.session.username = username;   
             req.session.level = level;
             res.redirect("/editors");          
