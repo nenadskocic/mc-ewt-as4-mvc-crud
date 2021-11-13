@@ -2,7 +2,6 @@
     "StAuth10222: I Nenad Skocic, 000107650 certify that this material is my original work. No other person's work has been used 
     without due acknowledgement. I have not made my work available to anyone else."
 */
-
 const express = require('express');
 const app = express();
 const session = require('express-session');
@@ -37,12 +36,11 @@ app.use(function(req,res,next) {
 });
 
 /**
- * 1) Log middleware
  * Creates log file (log.txt) and populate with data upon requests.
  */
 app.use(/^(.+)$/, function(req, res, next) {
     let date = new Date().toString();
-    // Keeeps original URL request, req.path not working with this router case.
+    // Keeps original URL request, req.path not working with this router case.
     let path = req.originalUrl;
     // IPV6 loopback address ::1 = localhost or 127.0.0.1
     let ip = req.ip;
@@ -88,13 +86,13 @@ app.use("/login",
 
 
 // protect access to the members page, re-direct user to home page if nobody is logged in...
-app.use("/members", function(req,res,next) {
+app.use("/members", function(req, res, next) {
   if (req.session.username) next();
   else res.redirect("/home");
 });
 
 // Protect access to the editors page, re-direct user to home page if nobody is logged in...
-app.use("/editors", function(req,res,next) {
+app.use("/editors", function(req, res, next) {
     if (req.session.username) {
         next();         
     } else {
@@ -103,7 +101,7 @@ app.use("/editors", function(req,res,next) {
 });
 
 // Protect access to the editors page, re-direct user to home page if level is member, otherwise continue.
-app.use("/editors", function(req,res,next) {
+app.use("/editors", function(req, res, next) {
     if (req.session.level == "member" ) {
         res.redirect("/home");
     } else {
